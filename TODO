@@ -1,0 +1,13 @@
+osutil      [×]
+types       [×]
+driver      [×]
+keyboard    [×]
+mouse       [×]
+interrupts  [×]
+port        [×]
+gdt         [×]
+kernel      [×]
+
+make pci to support base address registers [ ]
+make vga support [ ]
+make a basic gui [ ]
