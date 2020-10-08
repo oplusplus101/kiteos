@@ -8,6 +8,6 @@ port        [×]
 gdt         [×]
 kernel      [×]
 
-make pci to support base address registers [ ]
+make pci to support base address registers [×]
 make vga support [ ]
 make a basic gui [ ]
