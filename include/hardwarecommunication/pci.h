@@ -64,6 +64,7 @@ namespace kiteos
             bool DeviceHasFunctions(kiteos::common::uint16_t bus, kiteos::common::uint16_t device);
 
             void SelectDrivers(kiteos::drivers::DriverManager *driverManager, kiteos::hardwarecommunication::InterruptManager *interrupts);
+            kiteos::drivers::Driver *GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, kiteos::hardwarecommunication::InterruptManager *interrupts);
             PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function);
             BaseAddressRegister GetBaseAddressRegister(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function,kiteos::common::uint16_t bar);
         };

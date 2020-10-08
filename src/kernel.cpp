@@ -189,7 +189,7 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     drvmgr.AddDriver(&mouse);
 
     PeripheralComponentInterconnectController pciController;
-    pciController.SelectDrivers(&drvmgr);
+    pciController.SelectDrivers(&drvmgr, &interrupts);
     printf(L"Initializing Hardware, Stage 2\n");
 
     drvmgr.ActivateAll();

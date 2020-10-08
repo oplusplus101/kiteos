@@ -1,5 +1,5 @@
 *.o
 obj/**
-vscode/**
+.vscode/**
 mykernel.bin
 mykernel.iso
