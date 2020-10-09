@@ -5,6 +5,7 @@
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
 #include <hardwarecommunication/pci.h>
+#include <drivers/vga.h>
 
 /*
 \204 => ä
@@ -190,11 +191,44 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
 
     PeripheralComponentInterconnectController pciController;
     pciController.SelectDrivers(&drvmgr, &interrupts);
+
+    VideoGraphicsArray vga;
     printf(L"Initializing Hardware, Stage 2\n");
 
     drvmgr.ActivateAll();
     printf(L"Initializing Hardware, Stage 3\n");
     interrupts.Activate();
+
+    vga.SetMode(320, 200, 8);
+
+    for (int32_t y = 0; y < 100; y++)
+    {
+        for (int32_t x = 0; x < 160; x++)
+        {
+            vga.PutPixel(x, y, (uint8_t) RED);
+        }
+
+        for (int32_t x = 160; x < 320; x++)
+        {
+            vga.PutPixel(x, y, BRIGHT_CYAN);
+        }
+        
+    }
+
+    for (int32_t y = 100; y < 200; y++)
+    {
+        for (int32_t x = 0; x < 160; x++)
+        {
+            vga.PutPixel(x, y, (uint8_t) GREEN);
+        }
+
+        for (int32_t x = 160; x < 320; x++)
+        {
+            vga.PutPixel(x, y, (uint8_t) BLUE);
+        }
+    }
+    
+    
 
     while (1)
         ;

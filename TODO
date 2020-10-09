@@ -9,5 +9,5 @@ gdt         [×]
 kernel      [×]
 
 make pci to support base address registers [×]
-make vga support [ ]
+add vga support [×]
 make a basic gui [ ]
