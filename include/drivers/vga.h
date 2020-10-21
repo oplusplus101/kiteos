@@ -5,13 +5,13 @@
 #include <common/types.h>
 #include <hardwarecommunication/port.h>
 
-
 namespace kiteos
 {
     namespace drivers
     {
         enum Color
         {
+            TRANSPARENT = -0x01,
             BLACK = 0x00,
             BLUE = 0x01,
             GREEN = 0x02,
@@ -44,7 +44,7 @@ namespace kiteos
             hardwarecommunication::Port8Bit attributeControllerReadPort;
             hardwarecommunication::Port8Bit attributeControllerWritePort;
             hardwarecommunication::Port8Bit attributeControllerResetPort;
-        
+
             void WriteRegisters(common::uint8_t *registers);
             common::uint8_t *GetFrameBufferSegment();
 
@@ -58,8 +58,12 @@ namespace kiteos
 
             virtual bool SupportsMode(common::uint32_t width, common::uint32_t height, common::uint32_t colordepth);
             virtual bool SetMode(common::uint32_t width, common::uint32_t height, common::uint32_t colordepth);
-            virtual void PutPixel(common::uint32_t x, common::uint32_t y, common::uint8_t colorIndex);
-            virtual void PutPixel(common::uint32_t x, common::uint32_t y, common::uint8_t r, common::uint8_t g, common::uint8_t b);
+            virtual void PutPixel(common::int32_t x, common::int32_t y, common::uint8_t colorIndex);
+            virtual common::uint8_t GetPixel(common::int32_t x, common::int32_t y);
+
+
+            void FillRect(common::int32_t x, common::int32_t y, common::int32_t width, common::int32_t height, common::uint8_t color);
+            
         };
     } // namespace drivers
 } // namespace kiteos

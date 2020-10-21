@@ -1,7 +1,9 @@
 #include <common/types.h>
 
-#ifndef __GDT_H
-#define __GDT_H
+#ifndef __KITEOS__GDT_H
+#define __KITEOS__GDT_H
+
+#include <common/osutil.h>
 
 class GlobalDescriptorTable
 {

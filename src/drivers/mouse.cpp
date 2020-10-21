@@ -22,7 +22,7 @@ void MouseEventHandler::OnMouseUp(uint8_t button)
 {
 }
 
-void MouseEventHandler::OnMouseMove(int8_t x, int8_t y)
+void MouseEventHandler::OnMouseMove(int x, int y)
 {
 }
 
@@ -67,18 +67,20 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
     {
         if (buffer[0] != 0 || buffer[1] != 0)
         {
-            handler->OnMouseMove(buffer[1], -buffer[2]);
+            handler->OnMouseMove((int8_t)(buffer[1]), -(int8_t)(buffer[2]));
         }
         for (uint8_t i = 0; i < 3; i++)
         {
             if ((buffer[0] & (0x01 << i)) != (buttons & (0x01 << i)))
             {
-                if (buttons & (0x1 << 1))
+                if (buttons & (0x1 << i))
                     handler->OnMouseUp(i + 1);
                 else
                     handler->OnMouseDown(i + 1);
             }
         }
+
+        buttons = buffer[0];
     }
 
     return esp;

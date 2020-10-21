@@ -7,12 +7,7 @@ namespace kiteos
 {
     namespace common
     {
-
-        uint32_t fromMegaBytes(uint16_t mb)
-        {
-            return mb * 1024 * 1024;
-        }
-
+        uint32_t FromMegaBytes(uint16_t mb);
     } // namespace std
 } // namespace kiteos
 

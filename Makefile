@@ -4,7 +4,8 @@ LDPARAMS = -melf_i386
 
 objects = obj/loader.o \
           obj/gdt.o \
-          obj/drivers/driver.o \
+		  obj/common/osutil.o \
+		  obj/drivers/driver.o \
           obj/hardwarecommunication/port.o \
           obj/hardwarecommunication/interruptstubs.o \
           obj/hardwarecommunication/interrupts.o \
@@ -12,6 +13,9 @@ objects = obj/loader.o \
           obj/drivers/keyboard.o \
           obj/drivers/mouse.o \
 		  obj/drivers/vga.o \
+		  obj/gui/widget.o \
+		  obj/gui/window.o \
+		  obj/gui/desktop.o \
           obj/kernel.o
 
 
@@ -37,7 +41,7 @@ mykernel.iso: mykernel.bin
 	echo 'set timeout=0'                      > iso/boot/grub/grub.cfg
 	echo 'set default=0'                     >> iso/boot/grub/grub.cfg
 	echo ''                                  >> iso/boot/grub/grub.cfg
-	echo 'menuentry "My Operating System" {' >> iso/boot/grub/grub.cfg
+	echo 'menuentry "KITEOS" {' >> iso/boot/grub/grub.cfg
 	echo '  multiboot /boot/mykernel.bin'    >> iso/boot/grub/grub.cfg
 	echo '  boot'                            >> iso/boot/grub/grub.cfg
 	echo '}'                                 >> iso/boot/grub/grub.cfg

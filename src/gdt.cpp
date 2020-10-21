@@ -1,5 +1,4 @@
 #include <gdt.h>
-#include <common/osutil.h>
 
 using namespace kiteos;
 using namespace kiteos::common;
@@ -7,8 +6,8 @@ using namespace kiteos::common;
 GlobalDescriptorTable::GlobalDescriptorTable()
     : nullSegmentSelector(0, 0, 0),
       unusedSegmentSelector(0, 0, 0),
-      codeSegmentSelector(0, fromMegaBytes(64), 0x9A),
-      dataSegmentSelector(0, fromMegaBytes(64), 0x92)
+      codeSegmentSelector(0, 64 * 1024 * 1024, 0x9A),
+      dataSegmentSelector(0, 64 * 1024 * 1024, 0x92)
 {
     uint32_t i[2];
     i[1] = (uint32_t)this;

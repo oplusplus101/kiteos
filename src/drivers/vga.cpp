@@ -25,11 +25,11 @@ VideoGraphicsArray::~VideoGraphicsArray()
 
 void VideoGraphicsArray::WriteRegisters(uint8_t *registers)
 {
- //  misc
+    //  misc
     miscPort.Write(*(registers++));
 
     // sequencer
-    for(uint8_t i = 0; i < 5; i++)
+    for (uint8_t i = 0; i < 5; i++)
     {
         sequencerIndexPort.Write(i);
         sequencerDataPort.Write(*(registers++));
@@ -44,21 +44,21 @@ void VideoGraphicsArray::WriteRegisters(uint8_t *registers)
     registers[0x03] = registers[0x03] | 0x80;
     registers[0x11] = registers[0x11] & ~0x80;
 
-    for(uint8_t i = 0; i < 25; i++)
+    for (uint8_t i = 0; i < 25; i++)
     {
         crtcIndexPort.Write(i);
         crtcDataPort.Write(*(registers++));
     }
 
     // graphics controller
-    for(uint8_t i = 0; i < 9; i++)
+    for (uint8_t i = 0; i < 9; i++)
     {
         graphicsControllerIndexPort.Write(i);
         graphicsControllerDataPort.Write(*(registers++));
     }
 
     // attribute controller
-    for(uint8_t i = 0; i < 21; i++)
+    for (uint8_t i = 0; i < 21; i++)
     {
         attributeControllerResetPort.Read();
         attributeControllerIndexPort.Write(i);
@@ -71,7 +71,7 @@ void VideoGraphicsArray::WriteRegisters(uint8_t *registers)
 
 bool VideoGraphicsArray::SupportsMode(uint32_t width, uint32_t height, uint32_t colordepth)
 {
-    return (width == 320 && height == 200 && colordepth == 8) || (width == 720 && height == 480 && colordepth == 2);
+    return (width == 320 && height == 200 && colordepth == 8) || (width == 640 && height == 480 && colordepth == 2);
 }
 
 bool VideoGraphicsArray::SetMode(uint32_t width, uint32_t height, uint32_t colordepth)
@@ -104,28 +104,27 @@ bool VideoGraphicsArray::SetMode(uint32_t width, uint32_t height, uint32_t color
         this->height = height;
         return true;
     }
-    else if (width == 720 && height == 480 && colordepth == 2)
+    else if (width == 640 && height == 480 && colordepth == 2)
     {
-        uint8_t g_720x480x16[] =
+        unsigned char g_640x480x16[] =
             {
                 /* MISC */
-                0xE7,
+                0xE3,
                 /* SEQ */
                 0x03, 0x01, 0x08, 0x00, 0x06,
                 /* CRTC */
-                0x6B, 0x59, 0x5A, 0x82, 0x60, 0x8D, 0x0B, 0x3E,
-                0x00, 0x40, 0x06, 0x07, 0x00, 0x00, 0x00, 0x00,
-                0xEA, 0x0C, 0xDF, 0x2D, 0x08, 0xE8, 0x05, 0xE3,
+                0x5F, 0x4F, 0x50, 0x82, 0x54, 0x80, 0x0B, 0x3E,
+                0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0xEA, 0x0C, 0xDF, 0x28, 0x00, 0xE7, 0x04, 0xE3,
                 0xFF,
                 /* GC */
                 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x05, 0x0F,
                 0xFF,
                 /* AC */
-                0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+                0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x14, 0x07,
+                0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
                 0x01, 0x00, 0x0F, 0x00, 0x00};
-
-        WriteRegisters(g_720x480x16);
+        WriteRegisters(g_640x480x16);
         this->width = width;
         this->height = height;
         return true;
@@ -152,10 +151,25 @@ uint8_t *VideoGraphicsArray::GetFrameBufferSegment()
     }
 }
 
-void VideoGraphicsArray::PutPixel(uint32_t x, uint32_t y, uint8_t colorIndex)
+void VideoGraphicsArray::PutPixel(int32_t x, int32_t y, uint8_t colorIndex)
 {
-    uint8_t *pixelAddress = GetFrameBufferSegment() + 320 * y + x;
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        return;
+
+    if (colorIndex == TRANSPARENT)
+        return;
+
+    uint8_t *pixelAddress = GetFrameBufferSegment() + width * y + x;
     *pixelAddress = colorIndex;
+}
+
+uint8_t VideoGraphicsArray::GetPixel(int32_t x, int32_t y)
+{
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        return 0;
+
+    uint8_t *pixelAddress = GetFrameBufferSegment() + width * y + x;
+    return *pixelAddress;
 }
 
 uint8_t VideoGraphicsArray::GetColorIndex(uint8_t r, uint8_t g, uint8_t b)
@@ -172,7 +186,9 @@ uint8_t VideoGraphicsArray::GetColorIndex(uint8_t r, uint8_t g, uint8_t b)
         return WHITE;
 }
 
-void VideoGraphicsArray::PutPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b)
+void VideoGraphicsArray::FillRect(int32_t x, int32_t y, int32_t width, int32_t height, uint8_t color)
 {
-    PutPixel(x, y, GetColorIndex(r, g, b));
+    for (int32_t Y = y; Y < y + height; Y++)
+        for (int32_t X = x; X < x + width; X++)
+            PutPixel(X, Y, color);
 }

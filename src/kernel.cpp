@@ -6,6 +6,9 @@
 #include <drivers/driver.h>
 #include <hardwarecommunication/pci.h>
 #include <drivers/vga.h>
+#include <gui/widget.h>
+#include <gui/desktop.h>
+#include <gui/window.h>
 
 /*
 \204 => ä
@@ -17,6 +20,7 @@ using namespace kiteos;
 using namespace kiteos::common;
 using namespace kiteos::drivers;
 using namespace kiteos::hardwarecommunication;
+using namespace kiteos::gui;
 
 void printf(wchar_t *str)
 {
@@ -177,16 +181,15 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     InterruptManager interrupts(&gdt);
 
     printf(L"Initializing Hardware, Stage 1\n");
+    Desktop desktop(0, 0, 0, 320, 200, CYAN);
 
     DriverManager drvmgr;
+    KeyEventListener kl;
+    MouseEventListener ml;
 
-    KeyEventListener klistener;
-
-    MouseEventListener mlistener;
-
-    KeyboardDriver keyboard(&interrupts, &klistener);
+    KeyboardDriver keyboard(&interrupts, &desktop);
     drvmgr.AddDriver(&keyboard);
-    MouseDriver mouse(&interrupts, &mlistener);
+    MouseDriver mouse(&interrupts, &desktop);
     drvmgr.AddDriver(&mouse);
 
     PeripheralComponentInterconnectController pciController;
@@ -197,39 +200,19 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
 
     drvmgr.ActivateAll();
     printf(L"Initializing Hardware, Stage 3\n");
-    interrupts.Activate();
 
     vga.SetMode(320, 200, 8);
+    interrupts.Activate();
 
-    for (int32_t y = 0; y < 100; y++)
-    {
-        for (int32_t x = 0; x < 160; x++)
-        {
-            vga.PutPixel(x, y, (uint8_t) RED);
-        }
+    Window win1(&desktop, 10, 10, 20, 20, RED);
+    desktop.AddChild(&win1);
+    Window win2(&desktop, 40, 15, 30, 30, RED);
+    desktop.AddChild(&win2);
 
-        for (int32_t x = 160; x < 320; x++)
-        {
-            vga.PutPixel(x, y, BRIGHT_CYAN);
-        }
-        
-    }
-
-    for (int32_t y = 100; y < 200; y++)
-    {
-        for (int32_t x = 0; x < 160; x++)
-        {
-            vga.PutPixel(x, y, (uint8_t) GREEN);
-        }
-
-        for (int32_t x = 160; x < 320; x++)
-        {
-            vga.PutPixel(x, y, (uint8_t) BLUE);
-        }
-    }
-    
-    
-
+    desktop.Draw(&vga);
     while (1)
-        ;
+    {
+        desktop.DrawChildren(&vga);
+        desktop.DrawMouse(&vga);
+    }
 }

@@ -11,7 +11,6 @@ namespace kiteos
 {
     namespace hardwarecommunication
     {
-
         enum BaseAdderssRegisterType
         {
             MemoryMapping = 0,
@@ -22,28 +21,28 @@ namespace kiteos
         {
         public:
             bool prefetchable;
-            kiteos::common::uint8_t *address;
-            kiteos::common::uint32_t size;
+            common::uint8_t *address;
+            common::uint32_t size;
             BaseAdderssRegisterType type;
         };
 
         class PeripheralComponentInterconnectDeviceDescriptor
         {
         public:
-            kiteos::common::uint32_t portBase;
-            kiteos::common::uint32_t interrupt;
+            common::uint32_t portBase;
+            common::uint32_t interrupt;
 
-            kiteos::common::uint16_t bus;
-            kiteos::common::uint16_t device;
-            kiteos::common::uint16_t function;
+            common::uint16_t bus;
+            common::uint16_t device;
+            common::uint16_t function;
 
-            kiteos::common::uint16_t vendor_id;
-            kiteos::common::uint16_t device_id;
+            common::uint16_t vendor_id;
+            common::uint16_t device_id;
 
-            kiteos::common::uint8_t class_id;
-            kiteos::common::uint8_t subclass_id;
-            kiteos::common::uint8_t interface_id;
-            kiteos::common::uint8_t revision;
+            common::uint8_t class_id;
+            common::uint8_t subclass_id;
+            common::uint8_t interface_id;
+            common::uint8_t revision;
 
             PeripheralComponentInterconnectDeviceDescriptor();
             ~PeripheralComponentInterconnectDeviceDescriptor();
@@ -59,14 +58,14 @@ namespace kiteos
             PeripheralComponentInterconnectController();
             ~PeripheralComponentInterconnectController();
 
-            kiteos::common::int32_t Read(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function, kiteos::common::uint32_t registeroffset);
-            void Write(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function, kiteos::common::uint32_t registeroffset, kiteos::common::uint32_t value);
-            bool DeviceHasFunctions(kiteos::common::uint16_t bus, kiteos::common::uint16_t device);
+            common::int32_t Read(common::uint16_t bus, common::uint16_t device, common::uint16_t function, common::uint32_t registeroffset);
+            void Write(common::uint16_t bus, common::uint16_t device, common::uint16_t function, common::uint32_t registeroffset, common::uint32_t value);
+            bool DeviceHasFunctions(common::uint16_t bus, common::uint16_t device);
 
-            void SelectDrivers(kiteos::drivers::DriverManager *driverManager, kiteos::hardwarecommunication::InterruptManager *interrupts);
-            kiteos::drivers::Driver *GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, kiteos::hardwarecommunication::InterruptManager *interrupts);
-            PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function);
-            BaseAddressRegister GetBaseAddressRegister(kiteos::common::uint16_t bus, kiteos::common::uint16_t device, kiteos::common::uint16_t function,kiteos::common::uint16_t bar);
+            void SelectDrivers(drivers::DriverManager *driverManager, hardwarecommunication::InterruptManager *interrupts);
+            drivers::Driver *GetDriver(PeripheralComponentInterconnectDeviceDescriptor dev, hardwarecommunication::InterruptManager *interrupts);
+            PeripheralComponentInterconnectDeviceDescriptor GetDeviceDescriptor(common::uint16_t bus, common::uint16_t device, common::uint16_t function);
+            BaseAddressRegister GetBaseAddressRegister(common::uint16_t bus, common::uint16_t device, common::uint16_t function,common::uint16_t bar);
         };
     } // namespace hardwarecommunication
 

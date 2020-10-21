@@ -6,6 +6,7 @@
 #include <hardwarecommunication/port.h>
 #include <drivers/driver.h>
 
+
 namespace kiteos
 {
 
@@ -13,13 +14,13 @@ namespace kiteos
     {
         class MouseEventHandler
         {
-
+            
         public:
             MouseEventHandler();
             virtual void OnActivate();
             virtual void OnMouseDown(kiteos::common::uint8_t);
             virtual void OnMouseUp(kiteos::common::uint8_t);
-            virtual void OnMouseMove(kiteos::common::int8_t, kiteos::common::int8_t);
+            virtual void OnMouseMove(int x, int y);
         };
 
         class MouseDriver : public kiteos::hardwarecommunication::InterruptHandler, public Driver
