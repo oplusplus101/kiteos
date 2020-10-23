@@ -51,7 +51,7 @@ namespace kiteos
             virtual common::uint8_t GetColorIndex(common::uint8_t r, common::uint8_t g, common::uint8_t b);
 
         public:
-            common::int32_t width, height;
+            common::int32_t width, height, bpp;
 
             VideoGraphicsArray();
             ~VideoGraphicsArray();
@@ -60,7 +60,8 @@ namespace kiteos
             virtual bool SetMode(common::uint32_t width, common::uint32_t height, common::uint32_t colordepth);
             virtual void PutPixel(common::int32_t x, common::int32_t y, common::uint8_t colorIndex);
             virtual common::uint8_t GetPixel(common::int32_t x, common::int32_t y);
-
+            virtual void DrawChar(char chr, common::int32_t x, common::int32_t y, common::uint8_t fgcolor);
+            virtual void DrawText(char *text, common::int32_t x, common::int32_t y, common::uint8_t fgcolor);
 
             void FillRect(common::int32_t x, common::int32_t y, common::int32_t width, common::int32_t height, common::uint8_t color);
             
