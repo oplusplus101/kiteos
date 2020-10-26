@@ -1,45 +1,49 @@
 
+
 .set IRQ_BASE, 0x20
 
 .section .text
-.extern _ZN6kiteos21hardwarecommunication16InterruptManager15handleInterruptEhj
-.global _ZN6kiteos21hardwarecommunication16InterruptManager22IgnoreInterruptRequestEv
+
+.extern _ZN6kiteos21hardwarecommunication16InterruptManager15HandleInterruptEhj
 
 
-.macro HandleInterruptException num
-.global _ZN6kiteos21hardwarecommunication16InterruptManager26HandleInterruptException\num\()Ev
-_ZN6kiteos21hardwarecommunication16InterruptManager26HandleInterruptException\num\()Ev:
+.macro HandleException num
+.global _ZN6kiteos21hardwarecommunication16InterruptManager19HandleException\num\()Ev
+_ZN6kiteos21hardwarecommunication16InterruptManager19HandleException\num\()Ev:
     movb $\num, (interruptnumber)
     jmp int_bottom
 .endm
+
 
 .macro HandleInterruptRequest num
 .global _ZN6kiteos21hardwarecommunication16InterruptManager26HandleInterruptRequest\num\()Ev
 _ZN6kiteos21hardwarecommunication16InterruptManager26HandleInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
+    pushl $0
     jmp int_bottom
 .endm
 
-HandleInterruptException 0x00
-HandleInterruptException 0x01
-HandleInterruptException 0x02
-HandleInterruptException 0x03
-HandleInterruptException 0x04
-HandleInterruptException 0x05
-HandleInterruptException 0x06
-HandleInterruptException 0x07
-HandleInterruptException 0x08
-HandleInterruptException 0x09
-HandleInterruptException 0x0A
-HandleInterruptException 0x0B
-HandleInterruptException 0x0C
-HandleInterruptException 0x0D
-HandleInterruptException 0x0E
-HandleInterruptException 0x0F
-HandleInterruptException 0x10
-HandleInterruptException 0x11
-HandleInterruptException 0x12
-HandleInterruptException 0x13
+
+HandleException 0x00
+HandleException 0x01
+HandleException 0x02
+HandleException 0x03
+HandleException 0x04
+HandleException 0x05
+HandleException 0x06
+HandleException 0x07
+HandleException 0x08
+HandleException 0x09
+HandleException 0x0A
+HandleException 0x0B
+HandleException 0x0C
+HandleException 0x0D
+HandleException 0x0E
+HandleException 0x0F
+HandleException 0x10
+HandleException 0x11
+HandleException 0x12
+HandleException 0x13
 
 HandleInterruptRequest 0x00
 HandleInterruptRequest 0x01
@@ -60,28 +64,59 @@ HandleInterruptRequest 0x0F
 HandleInterruptRequest 0x31
 
 int_bottom:
-    pusha
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
 
+    # save registers
+    #pusha
+    #pushl %ds
+    #pushl %es
+    #pushl %fs
+    #pushl %gs
+    
+    pushl %ebp
+    pushl %edi
+    pushl %esi
 
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
+
+    # load ring 0 segment register
+    #cld
+    #mov $0x10, %eax
+    #mov %eax, %eds
+    #mov %eax, %ees
+
+    # call C++ Handler
     pushl %esp
     push (interruptnumber)
-    call _ZN6kiteos21hardwarecommunication16InterruptManager15handleInterruptEhj
-    movl %eax, %esp
+    call _ZN6kiteos21hardwarecommunication16InterruptManager15HandleInterruptEhj
+    #add %esp, 6
+    mov %eax, %esp # switch the stack
 
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
-    popa
+    # restore registers
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
 
-.global _ZN6kiteos21hardwarecommunication16InterruptManager22IgnoreInterruptRequestEv
-_ZN6kiteos21hardwarecommunication16InterruptManager22IgnoreInterruptRequestEv:
+    popl %esi
+    popl %edi
+    popl %ebp
     
+    #pop %gs
+    #pop %fs
+    #pop %es
+    #pop %ds
+    #popa
+    
+    add $4, %esp
+
+.global _ZN6kiteos21hardwarecommunication16InterruptManager15InterruptIgnoreEv
+_ZN6kiteos21hardwarecommunication16InterruptManager15InterruptIgnoreEv:
+
     iret
+
 
 .data
     interruptnumber: .byte 0

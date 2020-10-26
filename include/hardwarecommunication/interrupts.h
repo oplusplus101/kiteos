@@ -4,6 +4,7 @@
 #include <common/types.h>
 #include <hardwarecommunication/port.h>
 #include <gdt.h>
+#include <multitasking.h>
 
 namespace kiteos
 {
@@ -15,13 +16,13 @@ namespace kiteos
         class InterruptHandler
         {
         protected:
-            kiteos::common::uint8_t interruptNumber;
+            common::uint8_t interruptNumber;
             InterruptManager *interruptManager;
-            InterruptHandler(kiteos::common::uint8_t interruptNumber, InterruptManager *interruptManager);
+            InterruptHandler(common::uint8_t interruptNumber, InterruptManager *interruptManager);
             ~InterruptHandler();
 
         public:
-            virtual kiteos::common::uint32_t HandleInterrupt(kiteos::common::uint32_t esp);
+            virtual common::uint32_t HandleInterrupt(common::uint32_t esp);
         };
 
         class InterruptManager
@@ -32,13 +33,15 @@ namespace kiteos
             static InterruptManager *ActiveInteruptManager;
             InterruptHandler *handlers[256];
 
+            TaskManager *taskManager;
+
             struct GateDescriptor
             {
-                kiteos::common::uint16_t handlerAddressLowBits;
-                kiteos::common::uint16_t gdt_codeSegmentSelector;
-                kiteos::common::uint8_t reserved;
-                kiteos::common::uint8_t access;
-                kiteos::common::uint16_t handlerAddressHighBits;
+                common::uint16_t handlerAddressLowBits;
+                common::uint16_t gdt_codeSegmentSelector;
+                common::uint8_t reserved;
+                common::uint8_t access;
+                common::uint16_t handlerAddressHighBits;
 
             } __attribute__((packed));
 
@@ -46,13 +49,14 @@ namespace kiteos
 
             struct InterruptDescriptorTablePointer
             {
-                kiteos::common::uint16_t size;
-                kiteos::common::uint32_t base;
+                common::uint16_t size;
+                common::uint32_t base;
             } __attribute__((packed));
 
-            static void SetInterruptDescriptorTableEntry(kiteos::common::uint8_t interrupt,
-                                                         kiteos::common::uint16_t codeSegmentSelectorOffset, void (*handler)(),
-                                                         kiteos::common::uint8_t DescriptorPrivilegeLevel, kiteos::common::uint8_t DescriptorType);
+            common::uint16_t hardwareInterruptOffset;
+            static void SetInterruptDescriptorTableEntry(common::uint8_t interrupt,
+                                                         common::uint16_t codeSegmentSelectorOffset, void (*handler)(),
+                                                         common::uint8_t DescriptorPrivilegeLevel, common::uint8_t DescriptorType);
 
             Port8BitSlow picMasterCommand;
             Port8BitSlow picMasterData;
@@ -60,16 +64,18 @@ namespace kiteos
             Port8BitSlow picSlaveData;
 
         public:
-            InterruptManager(GlobalDescriptorTable *gdt);
+            InterruptManager(common::uint16_t hardwareInterruptOffset, GlobalDescriptorTable *gdt, TaskManager *taskManager);
             ~InterruptManager();
+
+            common::uint16_t HardwareInterruptOffset();
 
             void Activate();
             void Deactivate();
 
-            static kiteos::common::uint32_t handleInterrupt(kiteos::common::uint8_t interuptNumber, kiteos::common::uint32_t esp);
-            kiteos::common::uint32_t DoHandleInterrupt(kiteos::common::uint8_t interuptNumber, kiteos::common::uint32_t esp);
+            static common::uint32_t HandleInterrupt(common::uint8_t interuptNumber, common::uint32_t esp);
+            common::uint32_t DoHandleInterrupt(common::uint8_t interuptNumber, common::uint32_t esp);
 
-            static void IgnoreInterruptRequest();
+            static void InterruptIgnore();
 
             static void HandleInterruptRequest0x00();
             static void HandleInterruptRequest0x01();

@@ -9,6 +9,8 @@
 #include <gui/widget.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+#include <drivers/dbrenderer.h>
+#include <multitasking.h>
 
 /*
 \204 => ä
@@ -22,81 +24,37 @@ using namespace kiteos::drivers;
 using namespace kiteos::hardwarecommunication;
 using namespace kiteos::gui;
 
-void printf(wchar_t *str)
+void printf(wchar_t* str)
 {
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
 
-    static uint16_t *VideoMemory = (uint16_t *)0xb8000;
-    static int8_t x = 0, y = 0;
+    static uint8_t x=0,y=0;
 
-    static wchar_t *curTextOnScreen;
-
-    auto WriteToVideoMemory = [&](wchar_t chr, int _x, int _y) {
-        curTextOnScreen[80 * _y + _x] = chr;
-        VideoMemory[80 * _y + _x] = (VideoMemory[80 * y + x] & 0xFF00) | chr;
-    };
-
-    for (int i = 0; str[i] != L'\0'; i++)
+    for(int i = 0; str[i] != '\0'; ++i)
     {
-        switch (str[i])
+        switch(str[i])
         {
-        case L'\a':
-            x--;
-            if (x < 0)
-            {
-                if (y < 0)
-                    y = 0;
-                int i = 80;
-
-                x = i;
-                WriteToVideoMemory(0, x, y);
-            }
-            else
-            {
-                WriteToVideoMemory(0, x, y);
-            }
-            break;
-        case L'ä':
-            WriteToVideoMemory(L'\204', x, y);
-            x++;
-            break;
-        case L'ö':
-            WriteToVideoMemory(L'\224', x, y);
-            x++;
-            break;
-        case L'ü':
-            WriteToVideoMemory(L'\201', x, y);
-            x++;
-            break;
-        case L'\n':
-            x = 0;
-            y++;
-            break;
-        case L'\t':
-            for (int j = 0; j < 4; j++)
-            {
-                WriteToVideoMemory(L' ', x, y);
+            case '\n':
+                x = 0;
+                y++;
+                break;
+            default:
+                VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | str[i];
                 x++;
-            }
-            break;
-        default:
-            WriteToVideoMemory(str[i], x, y);
-            ;
-            x++;
-            break;
+                break;
         }
 
-        if (x >= 80)
+        if(x >= 80)
         {
             x = 0;
             y++;
         }
 
-        if (y >= 25)
+        if(y >= 25)
         {
-            for (y = 0; y < 25; y++)
-                for (x = 0; x < 80; x++)
-                    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xFF00) | 0;
-
+            for(y = 0; y < 25; y++)
+                for(x = 0; x < 80; x++)
+                    VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
             x = 0;
             y = 0;
         }
@@ -166,6 +124,22 @@ public:
     }
 };
 
+void TaskA()
+{
+    while (true)
+    {
+        printf(L"A");
+    }
+}
+
+void TaskB()
+{
+    while (true)
+    {
+        printf(L"B");
+    }
+}
+
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
@@ -175,34 +149,57 @@ extern "C" void callConstructors()
         (*i)();
 }
 
+// #define DESKTOP
+
 extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
 {
     GlobalDescriptorTable gdt;
-    InterruptManager interrupts(&gdt);
+
+    TaskManager taskManager;
+    Task task1(&gdt, TaskA);
+    Task task2(&gdt, TaskB);
+
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
+
+    InterruptManager interrupts(0x20, &gdt, &taskManager);
 
     printf(L"Initializing Hardware, Stage 1\n");
+#ifdef DESKTOP
     Desktop desktop(0, 0, 0, 320, 200, CYAN);
-
+#endif
     DriverManager drvmgr;
-    KeyEventListener kl;
-    MouseEventListener ml;
 
+#ifdef DESKTOP
     KeyboardDriver keyboard(&interrupts, &desktop);
     drvmgr.AddDriver(&keyboard);
     MouseDriver mouse(&interrupts, &desktop);
     drvmgr.AddDriver(&mouse);
+#else
+    KeyEventListener kl;
+    MouseEventListener ml;
+    KeyboardDriver keyboard(&interrupts, &kl);
+    drvmgr.AddDriver(&keyboard);
+    MouseDriver mouse(&interrupts, &ml);
+    drvmgr.AddDriver(&mouse);
+#endif
 
     PeripheralComponentInterconnectController pciController;
     pciController.SelectDrivers(&drvmgr, &interrupts);
 
+#ifdef DESKTOP
     VideoGraphicsArray vga;
+#endif
     printf(L"Initializing Hardware, Stage 2\n");
 
     drvmgr.ActivateAll();
     printf(L"Initializing Hardware, Stage 3\n");
-
+#ifdef DESKTOP
     vga.SetMode(320, 200, 8);
+#endif
     interrupts.Activate();
+
+#ifdef DESKTOP
 
     Window win1(&desktop, 10, 10, 20, 20, RED);
     desktop.AddChild(&win1);
@@ -210,9 +207,14 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     desktop.AddChild(&win2);
 
     desktop.Draw(&vga);
+#endif
+
     while (1)
     {
+#ifdef DESKTOP
+        vga.DrawText("Hello, world!", 0, 16, WHITE);
         desktop.DrawChildren(&vga);
         desktop.DrawMouse(&vga);
+#endif
     }
 }

@@ -3,20 +3,22 @@ ASPARAMS = --32
 LDPARAMS = -melf_i386
 
 objects = obj/loader.o \
-          obj/gdt.o \
-		  obj/common/osutil.o \
-		  obj/drivers/driver.o \
-          obj/hardwarecommunication/port.o \
-          obj/hardwarecommunication/interruptstubs.o \
-          obj/hardwarecommunication/interrupts.o \
-          obj/hardwarecommunication/pci.o \
-          obj/drivers/keyboard.o \
-          obj/drivers/mouse.o \
-		  obj/drivers/vga.o \
-		  obj/gui/widget.o \
-		  obj/gui/window.o \
-		  obj/gui/desktop.o \
-          obj/kernel.o
+		obj/common/osutil.o \
+		obj/gdt.o \
+		obj/drivers/driver.o \
+		obj/hardwarecommunication/port.o \
+		obj/hardwarecommunication/interruptstubs.o \
+		obj/hardwarecommunication/interrupts.o \
+		obj/multitasking.o \
+		obj/hardwarecommunication/pci.o \
+		obj/drivers/keyboard.o \
+		obj/drivers/mouse.o \
+		obj/drivers/vga.o \
+		obj/drivers/dbrenderer.o \
+		obj/gui/widget.o \
+		obj/gui/window.o \
+		obj/gui/desktop.o \
+		obj/kernel.o
 
 
 run: mykernel.iso

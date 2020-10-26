@@ -1,7 +1,7 @@
 make pci to support base address registers [×]
 add vga support [×]
 make a basic gui [×]
-memory multitasking [ ]
+multitasking [×]
 dynamic memory managemnt [ ]
 networking [ ]
 hard drives [ ]
