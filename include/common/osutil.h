@@ -9,7 +9,7 @@ namespace kiteos
     {
         uint32_t FromMegaBytes(uint16_t mb);
         void memcpy(void *source, void *dest, common::int32_t size);
-    } // namespace std
+    } // namespace common
 } // namespace kiteos
 
 #endif

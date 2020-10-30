@@ -3,6 +3,7 @@ ASPARAMS = --32
 LDPARAMS = -melf_i386
 
 objects = obj/loader.o \
+		obj/memorymanagement.o \
 		obj/common/osutil.o \
 		obj/gdt.o \
 		obj/drivers/driver.o \
