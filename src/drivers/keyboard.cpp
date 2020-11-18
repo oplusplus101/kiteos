@@ -5,18 +5,18 @@ using namespace kiteos::common;
 using namespace kiteos::drivers;
 using namespace kiteos::hardwarecommunication;
 
-void printf(wchar_t *);
+void printf(char *);
 void printHexf(uint8_t);
 
 KeyboardEventHandler::KeyboardEventHandler()
 {
 }
 
-void KeyboardEventHandler::OnKeyDown(wchar_t *keydata, uint8_t keyid)
+void KeyboardEventHandler::OnKeyDown(char *keydata, uint8_t keyid)
 {
 }
 
-void KeyboardEventHandler::OnKeyUp(wchar_t *keydata, uint8_t keyid)
+void KeyboardEventHandler::OnKeyUp(char *keydata, uint8_t keyid)
 {
 }
 
@@ -34,14 +34,6 @@ KeyboardDriver::~KeyboardDriver()
 
 void KeyboardDriver::Activate()
 {
-    if (handler != 0)
-    {
-        printf(L"KH IS NOT NULL\n");
-    }
-    else
-    {
-        printf(L"KH NOT NULL\n");
-    }
     while (commandport.Read() & 0x1)
         dataport.Read();
     commandport.Write(0xae); // activate interrupts
@@ -50,7 +42,6 @@ void KeyboardDriver::Activate()
     commandport.Write(0x60); // command 0x60 = set controller command byte
     dataport.Write(status);
     dataport.Write(0xf4);
-    printf(L"YES\n");
 }
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
@@ -58,7 +49,6 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
     uint8_t key = dataport.Read();
 
     if (handler == 0) {
-        printf(L"NONONONONONONONONONONONONONONONNOO");
         return esp;
     }
 
@@ -68,180 +58,180 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
     {
     case 0x10:
         if (Shift)
-            handler->OnKeyDown(L"Q", key);
+            handler->OnKeyDown("Q", key);
         else
-            handler->OnKeyDown(L"q", key);
+            handler->OnKeyDown("q", key);
         break;
     case 0x11:
         if (Shift)
-            handler->OnKeyDown(L"W", key);
+            handler->OnKeyDown("W", key);
         else
-            handler->OnKeyDown(L"w", key);
+            handler->OnKeyDown("w", key);
         break;
     case 0x12:
         if (Shift)
-            handler->OnKeyDown(L"E", key);
+            handler->OnKeyDown("E", key);
         else
-            handler->OnKeyDown(L"e", key);
+            handler->OnKeyDown("e", key);
         break;
     case 0x13:
         if (Shift)
-            handler->OnKeyDown(L"R", key);
+            handler->OnKeyDown("R", key);
         else
-            handler->OnKeyDown(L"r", key);
+            handler->OnKeyDown("r", key);
         break;
     case 0x14:
         if (Shift)
-            handler->OnKeyDown(L"T", key);
+            handler->OnKeyDown("T", key);
         else
-            handler->OnKeyDown(L"t", key);
+            handler->OnKeyDown("t", key);
         break;
     case 0x15:
         if (Shift)
-            handler->OnKeyDown(L"Z", key);
+            handler->OnKeyDown("Z", key);
         else
-            handler->OnKeyDown(L"z", key);
+            handler->OnKeyDown("z", key);
         break;
     case 0x16:
         if (Shift)
-            handler->OnKeyDown(L"U", key);
+            handler->OnKeyDown("U", key);
         else
-            handler->OnKeyDown(L"u", key);
+            handler->OnKeyDown("u", key);
         break;
     case 0x17:
         if (Shift)
-            handler->OnKeyDown(L"I", key);
+            handler->OnKeyDown("I", key);
         else
-            handler->OnKeyDown(L"i", key);
+            handler->OnKeyDown("i", key);
         break;
     case 0x18:
         if (Shift)
-            handler->OnKeyDown(L"O", key);
+            handler->OnKeyDown("O", key);
         else
-            handler->OnKeyDown(L"o", key);
+            handler->OnKeyDown("o", key);
         break;
     case 0x19:
         if (Shift)
-            handler->OnKeyDown(L"P", key);
+            handler->OnKeyDown("P", key);
         else
-            handler->OnKeyDown(L"p", key);
+            handler->OnKeyDown("p", key);
         break;
     //
     //
     case 0x1A:
-        handler->OnKeyDown(L"ü", key);
+        handler->OnKeyDown("ü", key);
         break;
     case 0x1E:
         if (Shift)
-            handler->OnKeyDown(L"A", key);
+            handler->OnKeyDown("A", key);
         else
-            handler->OnKeyDown(L"a", key);
+            handler->OnKeyDown("a", key);
         break;
     case 0x1F:
         if (Shift)
-            handler->OnKeyDown(L"S", key);
+            handler->OnKeyDown("S", key);
         else
-            handler->OnKeyDown(L"s", key);
+            handler->OnKeyDown("s", key);
         break;
     case 0x20:
         if (Shift)
-            handler->OnKeyDown(L"D", key);
+            handler->OnKeyDown("D", key);
         else
-            handler->OnKeyDown(L"d", key);
+            handler->OnKeyDown("d", key);
         break;
     case 0x21:
         if (Shift)
-            handler->OnKeyDown(L"F", key);
+            handler->OnKeyDown("F", key);
         else
-            handler->OnKeyDown(L"f", key);
+            handler->OnKeyDown("f", key);
         break;
     case 0x22:
         if (Shift)
-            handler->OnKeyDown(L"G", key);
+            handler->OnKeyDown("G", key);
         else
-            handler->OnKeyDown(L"g", key);
+            handler->OnKeyDown("g", key);
         break;
     case 0x23:
         if (Shift)
-            handler->OnKeyDown(L"H", key);
+            handler->OnKeyDown("H", key);
         else
-            handler->OnKeyDown(L"h", key);
+            handler->OnKeyDown("h", key);
         break;
     case 0x24:
         if (Shift)
-            handler->OnKeyDown(L"J", key);
-        handler->OnKeyDown(L"j", key);
+            handler->OnKeyDown("J", key);
+        handler->OnKeyDown("j", key);
         break;
     case 0x25:
         if (Shift)
-            handler->OnKeyDown(L"K", key);
+            handler->OnKeyDown("K", key);
         else
-            handler->OnKeyDown(L"k", key);
+            handler->OnKeyDown("k", key);
         break;
     case 0x26:
         if (Shift)
-            handler->OnKeyDown(L"L", key);
+            handler->OnKeyDown("", key);
         else
-            handler->OnKeyDown(L"l", key);
+            handler->OnKeyDown("l", key);
         break;
     case 0x27:
-        handler->OnKeyDown(L"ö", key);
+        handler->OnKeyDown("ö", key);
         break;
     case 0x28:
-        handler->OnKeyDown(L"ä", key);
+        handler->OnKeyDown("ä", key);
         break;
     case 0x2C:
         if (Shift)
-            handler->OnKeyDown(L"Y", key);
+            handler->OnKeyDown("Y", key);
         else
-            handler->OnKeyDown(L"y", key);
+            handler->OnKeyDown("y", key);
         break;
     case 0x2D:
         if (Shift)
-            handler->OnKeyDown(L"X", key);
+            handler->OnKeyDown("X", key);
         else
-            handler->OnKeyDown(L"x", key);
+            handler->OnKeyDown("x", key);
         break;
     case 0x2E:
         if (Shift)
-            handler->OnKeyDown(L"C", key);
+            handler->OnKeyDown("C", key);
         else
-            handler->OnKeyDown(L"c", key);
+            handler->OnKeyDown("c", key);
         break;
     case 0x2F:
         if (Shift)
-            handler->OnKeyDown(L"V", key);
+            handler->OnKeyDown("V", key);
         else
-            handler->OnKeyDown(L"v", key);
+            handler->OnKeyDown("v", key);
         break;
     case 0x30:
         if (Shift)
-            handler->OnKeyDown(L"B", key);
+            handler->OnKeyDown("B", key);
         else
-            handler->OnKeyDown(L"b", key);
+            handler->OnKeyDown("b", key);
         break;
     case 0x31:
         if (Shift)
-            handler->OnKeyDown(L"N", key);
+            handler->OnKeyDown("N", key);
         else
-            handler->OnKeyDown(L"n", key);
+            handler->OnKeyDown("n", key);
         break;
     case 0x32:
         if (Shift)
-            handler->OnKeyDown(L"M", key);
+            handler->OnKeyDown("M", key);
         else
-            handler->OnKeyDown(L"m", key);
+            handler->OnKeyDown("m", key);
         break;
 
     // SPETIAL
     case 0x39:
-        handler->OnKeyDown(L" ", key);
+        handler->OnKeyDown(" ", key);
         break;
     case 0x1C:
-        handler->OnKeyDown(L"\n", key);
+        handler->OnKeyDown("\n", key);
         break;
     case 0x0E:
-        handler->OnKeyDown(L"\a", key);
+        handler->OnKeyDown("\a", key);
         break;
 
     case 0x2A:
@@ -255,102 +245,102 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 
     case 0x33:
         if (Shift)
-            handler->OnKeyDown(L";", key);
+            handler->OnKeyDown(";", key);
         else
-            handler->OnKeyDown(L",", key);
+            handler->OnKeyDown(",", key);
         break;
 
     case 0x34:
         if (Shift)
-            handler->OnKeyDown(L":", key);
+            handler->OnKeyDown(":", key);
         else
-            handler->OnKeyDown(L".", key);
+            handler->OnKeyDown(".", key);
         break;
 
     case 0x35:
         if (Shift)
-            handler->OnKeyDown(L"_", key);
+            handler->OnKeyDown("_", key);
         else
-            handler->OnKeyDown(L"-", key);
+            handler->OnKeyDown("-", key);
         break;
 
     case 0x56:
         if (Shift)
-            handler->OnKeyDown(L">", key);
+            handler->OnKeyDown(">", key);
         else
-            handler->OnKeyDown(L"<", key);
+            handler->OnKeyDown("<", key);
         break;
 
         // NUMBERS
 
     case 0x02:
         if (Shift)
-            handler->OnKeyDown(L"+", key);
+            handler->OnKeyDown("+", key);
         else
-            handler->OnKeyDown(L"1", key);
+            handler->OnKeyDown("1", key);
         break;
 
     case 0x03:
         if (Shift)
-            handler->OnKeyDown(L"\"", key);
+            handler->OnKeyDown("\"", key);
         else
-            handler->OnKeyDown(L"2", key);
+            handler->OnKeyDown("2", key);
         break;
 
     case 0x04:
         if (Shift)
-            handler->OnKeyDown(L"*", key);
+            handler->OnKeyDown("*", key);
         else
-            handler->OnKeyDown(L"3", key);
+            handler->OnKeyDown("3", key);
         break;
 
     case 0x05:
         if (Shift)
-            handler->OnKeyDown(L"ç", key);
+            handler->OnKeyDown("ç", key);
         else
-            handler->OnKeyDown(L"4", key);
+            handler->OnKeyDown("4", key);
         break;
 
     case 0x06:
         if (Shift)
-            handler->OnKeyDown(L"%", key);
+            handler->OnKeyDown("%", key);
         else
-            handler->OnKeyDown(L"5", key);
+            handler->OnKeyDown("5", key);
         break;
 
     case 0x07:
         if (Shift)
-            handler->OnKeyDown(L"&", key);
+            handler->OnKeyDown("&", key);
         else
-            handler->OnKeyDown(L"6", key);
+            handler->OnKeyDown("6", key);
         break;
 
     case 0x08:
         if (Shift)
-            handler->OnKeyDown(L"/", key);
+            handler->OnKeyDown("/", key);
         else
-            handler->OnKeyDown(L"7", key);
+            handler->OnKeyDown("7", key);
         break;
 
     case 0x09:
         if (Shift)
-            handler->OnKeyDown(L"(", key);
+            handler->OnKeyDown("(", key);
         else
-            handler->OnKeyDown(L"8", key);
+            handler->OnKeyDown("8", key);
         break;
 
     case 0x0A:
         if (Shift)
-            handler->OnKeyDown(L")", key);
+            handler->OnKeyDown(")", key);
         else
-            handler->OnKeyDown(L"9", key);
+            handler->OnKeyDown("9", key);
         break;
 
     case 0x0B:
         if (Shift)
-            handler->OnKeyDown(L"=", key);
+            handler->OnKeyDown("=", key);
         else
-            handler->OnKeyDown(L"0", key);
+            handler->OnKeyDown("0", key);
         break;
 
     // TO IGNORE
@@ -360,7 +350,8 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
         break;
 
     default:
-
+        // printf("KEY 0x");
+        // printHexf(key);
         break;
     }
 

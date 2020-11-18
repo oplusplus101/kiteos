@@ -180,13 +180,13 @@ void CompositeWidget::OnMouseOut(int32_t x, int32_t y)
     }
 }
 
-void CompositeWidget::OnKeyDown(wchar_t *keychar, uint8_t keycode)
+void CompositeWidget::OnKeyDown(char *keychar, uint8_t keycode)
 {
     if (focusedChild != 0)
         focusedChild->OnKeyDown(keychar, keycode);
 }
 
-void CompositeWidget::OnKeyUp(wchar_t *keychar, uint8_t keycode)
+void CompositeWidget::OnKeyUp(char *keychar, uint8_t keycode)
 {
     if (focusedChild != 0)
         focusedChild->OnKeyDown(keychar, keycode);

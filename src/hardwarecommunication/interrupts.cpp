@@ -4,7 +4,7 @@ using namespace kiteos;
 using namespace kiteos::common;
 using namespace kiteos::hardwarecommunication;
 
-void printf(wchar_t *str);
+void printf(char *str);
 void printHexf(uint8_t num);
 
 InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager *interruptManager)
@@ -169,7 +169,7 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interrupt, uint32_t esp)
     }
     else if(interrupt != hardwareInterruptOffset)
     {
-        printf(L"UNHANDLED INTERRUPT 0x");
+        printf("UNHANDLED INTERRUPT 0x");
         // printHexf(interrupt);
     }
     

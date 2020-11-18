@@ -9,6 +9,11 @@ namespace kiteos
     {
         uint32_t FromMegaBytes(uint16_t mb);
         void memcpy(void *source, void *dest, common::int32_t size);
+
+        void delay(uint32_t ms);
+
+        void outb(uint16_t port, uint8_t val);
+        uint8_t inb(uint16_t port);
     } // namespace common
 } // namespace kiteos
 

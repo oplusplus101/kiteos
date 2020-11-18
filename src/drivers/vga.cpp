@@ -442,7 +442,7 @@ void VideoGraphicsArray::DrawChar(char chr, int32_t x, int32_t y, uint8_t fgcolo
         for (int cx = 0; cx < 8; cx++)
         {
             if (glyph[cy] & mask[cx])
-                PutPixel(x - cx + 8, y + cy - 12, fgcolor);
+                PutPixel(x - cx + 8, y + cy, fgcolor);
         }
     }
 }

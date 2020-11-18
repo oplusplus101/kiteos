@@ -5,7 +5,7 @@ using namespace kiteos::hardwarecommunication;
 using namespace kiteos::common;
 using namespace kiteos::drivers;
 
-void printf(wchar_t *str);
+void printf(char *str);
 void printHexf(uint8_t key);
 
 PeripheralComponentInterconnectDeviceDescriptor::PeripheralComponentInterconnectDeviceDescriptor()
@@ -77,24 +77,24 @@ void PeripheralComponentInterconnectController::SelectDrivers(DriverManager *dri
 				}
 				
 
-				printf(L"PCI BUS ");
+				printf("PCI BUS ");
 				printHexf(bus & 0xFF);
 				
-				printf(L", DEVICE ");
+				printf(", DEVICE ");
 				printHexf(device & 0xFF);
 				
-				printf(L", FUNCTION ");
+				printf(", FUNCTION ");
 				printHexf(function & 0xFF);
 				
-				printf(L" = VENDOR ");
+				printf(" = VENDOR ");
 				printHexf((dev.vendor_id & 0xFF00) >> 8);
 				printHexf(dev.vendor_id & 0xFF);
 
-				printf(L", DEVICE ");
+				printf(", DEVICE ");
 				printHexf((dev.device_id & 0xFF00) >> 8);
 				printHexf(dev.device_id & 0xFF);
 
-				printf(L"\n");
+				printf("\n");
 			}
 		}
 	}

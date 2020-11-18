@@ -13,6 +13,8 @@
 #include <drivers/dbrenderer.h>
 #include <multitasking.h>
 #include <memorymanagement.h>
+#include <common/math.h>
+#include <drivers/pcspeaker.h>
 
 /*
 \204 => ä
@@ -26,82 +28,141 @@ using namespace kiteos::drivers;
 using namespace kiteos::hardwarecommunication;
 using namespace kiteos::gui;
 
-void printf(wchar_t *str)
+int printx, printy;
+
+void printf(char *str)
 {
     static uint16_t *VideoMemory = (uint16_t *)0xb8000;
-
-    static uint8_t x = 0, y = 0;
 
     for (int i = 0; str[i] != '\0'; ++i)
     {
         switch (str[i])
         {
         case '\n':
-            x = 0;
-            y++;
+            printx = 0;
+            printy++;
+            break;
+        case '\a':
+            VideoMemory[80 * printy + printx] = (VideoMemory[80 * printy + printx] & 0xFF00) | ' ';
+            printx--;
             break;
         default:
-            VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xFF00) | str[i];
-            x++;
+            VideoMemory[80 * printy + printx] = (VideoMemory[80 * printy + printx] & 0xFF00) | str[i];
+            printx++;
             break;
         }
 
-        if (x >= 80)
+        if (printx >= 80)
         {
-            x = 0;
-            y++;
+            printx = 0;
+            printy++;
         }
 
-        if (y >= 25)
+        if (printy >= 25)
         {
-            for (y = 0; y < 25; y++)
-                for (x = 0; x < 80; x++)
-                    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0xFF00) | ' ';
-            x = 0;
-            y = 0;
+            for (printy = 0; printy < 25; printy++)
+                for (printx = 0; printx < 80; printx++)
+                    VideoMemory[80 * printy + printx] = (VideoMemory[80 * printy + printx] & 0xFF00) | ' ';
+            printx = 0;
+            printy = 0;
         }
     }
 }
 
-int strlen(wchar_t s[]) {
-   int c = 0;
-   while (s[c] != '\0')
-      c++;
-
-   return c;
+void memset(char *buf, char v, int len)
+{
+    while (buf && len > 0)
+    {
+        buf = (char *)v;
+        buf++;
+        len--;
+    }
 }
 
-wchar_t *strrev(wchar_t *str){
-    wchar_t c, *front, *back;
+int strlen(char s[])
+{
+    int c = 0;
+    while (s[c] != L'\0')
+        c++;
 
-    if(!str || !*str)
+    return c;
+}
+
+char *strcpy(char *dest, char *src, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        dest[i] = src[i];
+    }
+}
+
+char *strrev(char *str)
+{
+    char c, *front, *back;
+
+    if (!str || !*str)
         return str;
-    for(front=str,back=str+strlen(str)-1;front < back;front++,back--){
-        c=*front;*front=*back;*back=c;
+    for (front = str, back = str + strlen(str) - 1; front < back; front++, back--)
+    {
+        c = *front;
+        *front = *back;
+        *back = c;
     }
     return str;
 }
 
-char *printDecf(int v, int radix_base){
-    static char table[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-    wchar_t buff[33];
-    wchar_t *p=buff;
-    unsigned int n = (v < 0 && radix_base == 10)? -v : (unsigned int) v;
-    while(n>=radix_base){
-        *p++=table[n%radix_base];
-        n/=radix_base;
+bool strcmp(char *x, char *y)
+{
+    int flag = 0;
+
+    // Iterate a loop till the end
+    // of both the strings
+    while (*x != '\0' || *y != '\0')
+    {
+        if (*x == *y)
+        {
+            x++;
+            y++;
+        }
+
+        // If two characters are not same
+        // print the difference and exit
+        else if ((*x == '\0' && *y != '\0') || (*x != '\0' && *y == '\0') || *x != *y)
+        {
+            flag = 1;
+            return false;
+        }
     }
-    *p++=table[n];
-    if(v < 0 && radix_base == 10) *p++='-';
-    *p='\0';
+
+    // If two strings are exactly same
+    if (flag == 0)
+    {
+        return true;
+    }
+}
+
+void printDecf(int v, int radix_base)
+{
+    static char table[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    char buff[33];
+    char *p = buff;
+    unsigned int n = (v < 0 && radix_base == 10) ? -v : (unsigned int)v;
+    while (n >= radix_base)
+    {
+        *p++ = table[n % radix_base];
+        n /= radix_base;
+    }
+    *p++ = table[n];
+    if (v < 0 && radix_base == 10)
+        *p++ = '-';
+    *p = '\0';
     printf(strrev(buff));
 }
 
-
 void printHexf(uint8_t key)
 {
-    wchar_t *foo = L"00";
-    wchar_t *hex = L"0123456789ABCDEF";
+    char *foo = "00";
+    char *hex = "0123456789ABCDEF";
     foo[0] = hex[(key >> 4) & 0x0F];
     foo[1] = hex[key & 0x0F];
     printf(foo);
@@ -109,16 +170,35 @@ void printHexf(uint8_t key)
 
 class KeyEventListener : public KeyboardEventHandler
 {
+protected:
 public:
-    virtual void OnKeyUp(wchar_t *keydata, uint8_t key)
+    static KeyEventListener *active;
+    char *currentText;
+    bool submit;
+    KeyEventListener()
+    {
+        active = this;
+    }
+    virtual void OnKeyUp(char *keydata, uint8_t key)
     {
     }
 
-    virtual void OnKeyDown(wchar_t *keydata, uint8_t key)
+    virtual void OnKeyDown(char *keydata, uint8_t key)
     {
+        if (keydata[0] == '\a')
+            currentText[strlen(currentText) - 1] = '\0';
+
+        if (keydata[0] == '\n')
+        {
+            submit = true;
+            return;
+        }
+
         printf(keydata);
     }
 };
+
+KeyEventListener *KeyEventListener::active;
 
 class MouseEventListener : public MouseEventHandler
 {
@@ -143,7 +223,6 @@ public:
 
     virtual void OnMouseMove(int8_t xoffset, int8_t yoffset)
     {
-        printf(L"HAHA");
         static uint16_t *VideoMemory = (uint16_t *)0xb8000;
         VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0x0F00) << 4 | (VideoMemory[80 * y + x] & 0xF000) >> 4 | (VideoMemory[80 * y + x] & 0x00FF);
 
@@ -198,16 +277,9 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     size_t heap = FromMegaBytes(10);
     MemoryManager memoryManager(heap, (*memuper) * 1024 - heap - 10 * 1024);
 
-    printf(L"Heap: ");
-    printDecf(heap, 10);
-
     void *allocated = memoryManager.malloc(1024);
 
-    printf(L"\nAllocated: ");
-    printDecf((uint32_t)allocated, 10); 
-    printf(L"\n");
-
-    printf(L"Initializing Hardware, Stage 1\n");
+    printf("Initializing Hardware, Stage 1\n");
 #ifdef DESKTOP
     Desktop desktop(0, 0, 0, 320, 200, CYAN);
 #endif
@@ -219,6 +291,8 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     MouseDriver mouse(&interrupts, &desktop);
     drvmgr.AddDriver(&mouse);
 #else
+    PCSpeaker pcs;
+    drvmgr.AddDriver(&pcs);
     KeyEventListener kl;
     MouseEventListener ml;
     KeyboardDriver keyboard(&interrupts, &kl);
@@ -227,19 +301,12 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
     drvmgr.AddDriver(&mouse);
 #endif
 
-    PeripheralComponentInterconnectController pciController;
-    pciController.SelectDrivers(&drvmgr, &interrupts);
-
-#ifdef DESKTOP
     VideoGraphicsArray vga;
-#endif
-    printf(L"Initializing Hardware, Stage 2\n");
+    printf("Initializing Hardware, Stage 2\n");
 
     drvmgr.ActivateAll();
-    printf(L"Initializing Hardware, Stage 3\n");
-#ifdef DESKTOP
-    vga.SetMode(320, 200, 8);
-#endif
+    printf("Initializing Hardware, Stage 3\n");
+    // vga.SetMode(320, 200, 8);
     interrupts.Activate();
 
 #ifdef DESKTOP
@@ -251,13 +318,16 @@ extern "C" void kernelMain(void *multiboot_structure, uint32_t magicnumber)
 
     desktop.Draw(&vga);
 #endif
-
+    // vga.FillRect(0, 0, 320, 200, BLACK);
     while (1)
     {
 #ifdef DESKTOP
         vga.DrawText("Hello, world!", 0, 16, WHITE);
         desktop.DrawChildren(&vga);
         desktop.DrawMouse(&vga);
+#else
+        // pcs.PlaySong("APAPBPBP");
+        pcs.Beep();
 #endif
     }
 }

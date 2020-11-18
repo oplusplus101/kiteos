@@ -17,23 +17,23 @@ namespace kiteos
         {
         public:
             KeyboardEventHandler();
-            virtual void OnKeyDown(wchar_t *keydata, kiteos::common::uint8_t keyid);
-            virtual void OnKeyUp(wchar_t *keydata, kiteos::common::uint8_t keyid);
+            virtual void OnKeyDown(char *keydata, common::uint8_t keyid);
+            virtual void OnKeyUp(char *keydata, common::uint8_t keyid);
         };
 
-        class KeyboardDriver : public kiteos::hardwarecommunication::InterruptHandler,
+        class KeyboardDriver : public hardwarecommunication::InterruptHandler,
                                public Driver
         {
-            kiteos::hardwarecommunication::Port8Bit dataport;
-            kiteos::hardwarecommunication::Port8Bit commandport;
+            hardwarecommunication::Port8Bit dataport;
+            hardwarecommunication::Port8Bit commandport;
 
             KeyboardEventHandler *handler;
 
         public:
-            KeyboardDriver(kiteos::hardwarecommunication::InterruptManager *interruptManager, KeyboardEventHandler *handler);
+            KeyboardDriver(hardwarecommunication::InterruptManager *interruptManager, KeyboardEventHandler *handler);
             ~KeyboardDriver();
 
-            virtual kiteos::common::uint32_t HandleInterrupt(kiteos::common::uint32_t esp);
+            virtual common::uint32_t HandleInterrupt(common::uint32_t esp);
             virtual void Activate();
         };
     } // namespace drivers

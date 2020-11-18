@@ -3,6 +3,8 @@ ASPARAMS = --32
 LDPARAMS = -melf_i386
 
 objects = obj/loader.o \
+		obj/common/string.o \
+		obj/common/math.o \
 		obj/memorymanagement.o \
 		obj/common/osutil.o \
 		obj/gdt.o \
@@ -15,6 +17,7 @@ objects = obj/loader.o \
 		obj/drivers/keyboard.o \
 		obj/drivers/mouse.o \
 		obj/drivers/vga.o \
+		obj/drivers/pcspeaker.o \
 		obj/drivers/dbrenderer.o \
 		obj/gui/widget.o \
 		obj/gui/window.o \
@@ -25,6 +28,9 @@ objects = obj/loader.o \
 run: mykernel.iso
 	(killall VirtualBox && sleep 1) || true
 	VirtualBox --startvm 'OPPOS' &
+
+run-qemu: mykernel.iso
+	qemu-system-i386 mykernel.iso -soundhw pcspk
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)

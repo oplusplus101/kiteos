@@ -63,8 +63,8 @@ namespace kiteos
             virtual void OnMouseOver(common::int32_t x, common::int32_t y);
             virtual void OnMouseOut(common::int32_t x, common::int32_t y);
 
-            virtual void OnKeyDown(wchar_t *keychar, common::uint8_t keycode);
-            virtual void OnKeyUp(wchar_t *keychar, common::uint8_t keycode);
+            virtual void OnKeyDown(char *keychar, common::uint8_t keycode);
+            virtual void OnKeyUp(char *keychar, common::uint8_t keycode);
         };
     } // namespace gui
 

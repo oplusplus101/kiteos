@@ -5,7 +5,7 @@ using namespace kiteos::common;
 using namespace kiteos::gui;
 using namespace kiteos::drivers;
 
-void printf(wchar_t *str);
+void printf(char *str);
 
 Desktop::Desktop(Widget *parent, int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color)
     : CompositeWidget(parent, x, y, w, h, color),

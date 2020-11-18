@@ -15,3 +15,30 @@ void kiteos::common::memcpy(void *source, void *dest, int32_t size)
     for (int i = 0; i < size; i++)
         dest_char[i] = src_char[i];
 }
+
+void kiteos::common::delay(uint32_t ms)
+{
+    uint32_t i = 0;
+    while (i <= ms)
+    {
+        i++;
+    }
+}
+
+
+void kiteos::common::outb(uint16_t port, uint8_t val)
+{
+    asm volatile("outb %0, %1"
+                 :
+                 : "a"(val), "Nd"(port));
+}
+
+uint8_t kiteos::common::inb(uint16_t port)
+{
+    uint8_t ret;
+    asm volatile("inb %1, %0"
+                 : "=a"(ret)
+                 : "Nd"(port));
+    
+    return ret;
+}
